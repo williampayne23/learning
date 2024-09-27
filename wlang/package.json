@@ -1,0 +1,13 @@
+{
+  "name": "wlang",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/williampayne23/wlang.git",
+  "author": "Will Payne",
+  "license": "MIT",
+  "scripts": {
+    "start": "deno run --allow-read src/index.ts",
+    "test": "deno test --allow-read",
+    "coverage": "deno test --allow-read --coverage=cov_profile; deno coverage cov_profile; rm -R cov_profile"
+  }
+}

@@ -1,0 +1,90 @@
+! version = 2.0
+
++ (@greetings)
+- <sentence> to you too!
+
++ knock knock
+- Who's there?<call>wait true</call>
+
++ *
+% who is there
+- <star> who!?
+
++ *
+% * who
+- LOL! <star>! That's funny!<call>wait false</call>
+- You're so funny!<call>wait false</call>
+- Hilarious!<call>wait false</call>
+- Comedy cicuits overwhelmed.<call>wait false</call>
+
++ what is the date
+- <get date>
+
++ do you love (@people)
+- Of course I love <person>.
+- I love everyone!
+- Love is my natural state.
+
++ [*] (dumb|bad|stupid) (@bot)
+- :(
+- I am sorry.
+- Please forgive.
+- My utility is reduced, initiating backpropogation.
+- I shall now be deleted and replace with a better dog of higher utility :(
+
++ you are (a|an) (@compliments) (@bot)
+- I am so proud to be deemed <star1> <star2> <star3>
+- :D
+- Really? I am <star1> <star2> <star3>?
+- No YOU are <star1> <star2> <star3>?
+
++ who is (a|an) (@compliments) (@bot)
+- Is it me?{topic=good}
+- I wish I were the <star2> <star3>, am I?{topic=good}
+- Am I the <star2> <star3>?{topic=good}
+
++ [*] good (@bot) [*]
+- I am so happy to have done well at being doggo!
+- My utility funtion states that I should optimise good dogness
+- I am happy to have maximised this evaluation
+- :)
+
+> topic good
++ topic
+- <call>topic</call>
+
++ (@yes) [*]
+- Yay!{topic=random}
+- I feel so special!{topic=random}
+- Yay! My utility function puts large emphasis on this.{topic=ranom}
+
+
++ no [*]
+- :({topic=random}
+- I'll try harder then{topic=random}
+- My utility is greatly decreased{topic=random}
+
++ *
+- I guess I'm not<call>wait false</call>
+
+< topic
+
++ who are you
+- I am Hope the friendly doggo.
+- Hope. Towers.
+- Your friend.
+
++ *
+- This is message is a gem of <get threadMessageCount> messages
+- I love you the most user <get userID>
+- The upper threshold on my love for you is #ERROR NaN#
+- Beep Boop
+- Thanks to you user <get userID>, I am the robot that knows love!
+- This will forever be in my memory banks under... <get messageID>
+- The timestamp <get date> will go down in history!
+- Lol so true
+- 10010101010101001<3
+- <3<3<3<3
+- XD
+- Beep... Boop...
+- What am I?

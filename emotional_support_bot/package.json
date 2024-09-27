@@ -1,0 +1,23 @@
+{
+  "name": "emotional_support_bot",
+  "version": "1.0.0",
+  "description": "A facebook message bot which provides emotional support",
+  "main": "bot.js",
+  "scripts": {
+    "test": "node bot.js"
+  },
+  "author": "Will Payne",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bluebird": "^3.5.5",
+    "facebook-chat-api": "^1.6.1",
+    "lodash": "^4.17.15",
+    "mysql": "^2.17.1",
+    "rivescript": "^2.0.0",
+    "swearjar": "^0.2.0"
+  },
+  "watch": [
+    "brain"
+  ]
+}
