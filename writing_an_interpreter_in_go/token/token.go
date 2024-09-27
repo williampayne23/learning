@@ -18,8 +18,13 @@ const (
 	ASTERISK = "*"
 	SLASH    = "/"
 
+    DECREMENT = "--"
+    INCREMENT = "++"
+
 	LT = "<"
+    LTE = "<="
 	GT = ">"
+    GTE = ">="
 
 	EQ     = "=="
 	NOT_EQ = "!="
@@ -48,7 +53,7 @@ type Token struct {
 	Literal string
 }
 
-var keywords = map[string]TokenType{
+var Keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,
 	"true":   TRUE,
@@ -58,9 +63,28 @@ var keywords = map[string]TokenType{
 	"return": RETURN,
 }
 
-func LookupIdent(ident string) TokenType {
-	if tok, ok := keywords[ident]; ok {
-		return tok
-	}
-	return IDENT
+var Symbols = map[string]TokenType{
+    "=":  ASSIGN,
+    "+":  PLUS,
+    "-":  MINUS,
+    "!":  BANG,
+    "*":  ASTERISK,
+    "/":  SLASH,
+    "<":  LT,
+    ">":  GT,
+    ",":  COMMA,
+    ";":  SEMICOLON,
+    "(":  LPAREN,
+    ")":  RPAREN,
+    "{":  LBRACE,
+    "}":  RBRACE,
+}
+
+var MultiCharSymbols = map[string]TokenType{
+    "<=": LTE,
+    ">=": GTE,
+    "==": EQ,
+    "!=": NOT_EQ,
+    "++": INCREMENT,
+    "--": DECREMENT,
 }
