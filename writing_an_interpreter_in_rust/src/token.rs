@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
-    Illegal,
+    ILLEGAL,
     EOF,
 
     // Identifiers + literals
@@ -14,11 +14,16 @@ pub enum TokenType {
     Bang,
     Asterisk,
     Slash,
+    PlusPlus,
+    MinusMinus,
 
     LT,
     GT,
+    LTE,
+    GTE,
 
     EQ,
+    STRONGEQ,
     NotEQ,
      
     // Delimiters
@@ -74,12 +79,21 @@ impl Token {
             TokenType::Else => Token::new(token_type, "else".to_string()),
             TokenType::Return => Token::new(token_type, "return".to_string()),
             TokenType::EOF => Token::new(token_type, "".to_string()),
-            _ => panic!("Invalid token type"),
+            TokenType::Ident(_) => Token::new(TokenType::ILLEGAL, "".to_string()),
+            TokenType::Int(_) => Token::new(TokenType::ILLEGAL, "".to_string()),
+            TokenType::PlusPlus => Token::new(TokenType::PlusPlus, "++".to_string()),
+            TokenType::MinusMinus => Token::new(TokenType::MinusMinus, "--".to_string()),
+            TokenType::LTE => Token::new(TokenType::LTE, "<=".to_string()),
+            TokenType::GTE => Token::new(TokenType::GTE, ">=".to_string()),
+            TokenType::EQ => Token::new(TokenType::EQ, "==".to_string()),
+            TokenType::STRONGEQ => Token::new(TokenType::STRONGEQ, "===".to_string()),
+            TokenType::NotEQ => Token::new(TokenType::NotEQ, "!=".to_string()),
+            TokenType::ILLEGAL => Token::new(TokenType::ILLEGAL, "".to_string()),
         }
     }
 
     pub fn new_illegal(literal: &str) -> Token {
-        Token::new(TokenType::Illegal, literal.to_string())
+        Token::new(TokenType::ILLEGAL, literal.to_string())
     }
 
     pub fn new_ident(literal: &str) -> Token {
@@ -108,7 +122,20 @@ pub fn lookup_single_char_token(c: char) -> Option<TokenType> {
         ')' => Some(TokenType::RParen),
         '{' => Some(TokenType::LBrace),
         '}' => Some(TokenType::RBrace),
+        
         _ => None,
+    }
+}
+
+pub fn lookup_multi_char_token(c: char) -> Vec<TokenType> {
+    match c {
+        '=' => vec![TokenType::STRONGEQ, TokenType::EQ],
+        '!' => vec![TokenType::NotEQ],
+        '<' => vec![TokenType::LTE],
+        '>' => vec![TokenType::GTE],
+        '-' => vec![TokenType::MinusMinus],
+        '+' => vec![TokenType::PlusPlus],
+        _ => vec![],
     }
 }
 
@@ -122,12 +149,5 @@ pub fn lookup_keyword(ident: &str) -> Option<TokenType> {
         "else" => Some(TokenType::Else),
         "return" => Some(TokenType::Return),
         _ => None,
-    }
-}
-
-pub fn possible_multi_char_token(c: char) -> bool {
-    match c {
-        '=' | '!' | '<' | '>' => true,
-        _ => false,
     }
 }
