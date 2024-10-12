@@ -10,12 +10,19 @@ type Lexer struct {
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
 	ch           byte // current char under examination
+	row          int  // current line number
+	col          int  // current col in line
+
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar()
 	return l
+}
+
+func (l *Lexer) Text() string {
+    return l.input
 }
 
 func (l *Lexer) readChar() {
@@ -26,43 +33,44 @@ func (l *Lexer) readChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition += 1
+	l.col += 1
 }
 
 func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 	if tok, ok := tryMultiCharSymbol(l, l.ch); ok {
-        l.readChar()
+		l.readChar()
 		return tok
 	}
 
 	if tok, ok := trySingleCharSymbol(l); ok {
-        l.readChar()
+		l.readChar()
 		return tok
 	}
 
 	if tok, ok := tryKeywordOrIdent(l); ok {
-        l.readChar()
+		l.readChar()
 		return tok
 	}
 
 	if tok, ok := tryNumber(l); ok {
-        l.readChar()
+		l.readChar()
 		return tok
 	}
 
-    if tok, ok := tryEOF(l); ok {
-        l.readChar()
-        return tok
-    }
+	if tok, ok := tryEOF(l); ok {
+		l.readChar()
+		return tok
+	}
 
-    // If we reach this point, we have an illegal character
-    tok := token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}
-    l.readChar()
-    return tok
+	// If we reach this point, we have an illegal character
+	tok := token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}
+	l.readChar()
+	return tok
 }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
-	return token.Token{Type: tokenType, Literal: string(ch)}
+func newToken(tokenType token.TokenType, ch byte, row int, col int) token.Token {
+	return token.Token{Type: tokenType, Literal: string(ch), Row: row, Col: col}
 }
 
 func (l *Lexer) readIdentifier() string {
@@ -81,6 +89,10 @@ func isIdentifierCharacter(ch byte) bool {
 
 func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		if l.ch == '\n' {
+			l.row += 1
+			l.col = 0
+		}
 		l.readChar()
 	}
 }
@@ -98,39 +110,39 @@ func isDigit(ch byte) bool {
 }
 
 func (l *Lexer) peekChar(n int) byte {
-	if l.readPosition - 1 +n >= len(l.input) {
+	if l.readPosition-1+n >= len(l.input) {
 		return 0
 	} else {
-		return l.input[l.readPosition - 1 + n]
+		return l.input[l.readPosition-1+n]
 	}
 }
 
 func tryMultiCharSymbol(l *Lexer, ch byte) (token.Token, bool) {
 	// Try to read a multi-character symbol
 	possibleMultiCharSymbols := possibleMultiCharSymbols(ch)
-    longestSymbol := token.Token{Type: token.ILLEGAL, Literal: ""}
-    longestSymbolLength := 0
+	longestSymbol := token.Token{Type: token.ILLEGAL, Literal: ""}
+	longestSymbolLength := 0
 	for symbol, tok := range possibleMultiCharSymbols {
-        symbol_length := len(symbol)
-        if symbol_length < longestSymbolLength {
-            continue
-        }
-        if l.readPosition + symbol_length - 1> len(l.input) {
-            continue
-        }
-        lookahead := l.input[l.position:l.readPosition + symbol_length - 1] 
-        if lookahead == symbol {
-            longestSymbol = token.Token{Type: tok, Literal: symbol}
-            longestSymbolLength = symbol_length
-        }
+		symbol_length := len(symbol)
+		if symbol_length < longestSymbolLength {
+			continue
+		}
+		if l.readPosition+symbol_length-1 > len(l.input) {
+			continue
+		}
+		lookahead := l.input[l.position : l.readPosition+symbol_length-1]
+		if lookahead == symbol {
+			longestSymbol = token.Token{Type: tok, Literal: symbol}
+			longestSymbolLength = symbol_length
+		}
 	}
-    if longestSymbolLength > 0 {
-        for i := 1; i < longestSymbolLength; i++ {
-            l.readChar()
-        }
-        return longestSymbol, true
-    }
-	return token.Token{Type: token.ILLEGAL, Literal: string(ch)}, false
+	if longestSymbolLength > 0 {
+		for i := 1; i < longestSymbolLength; i++ {
+			l.readChar()
+		}
+		return longestSymbol, true
+	}
+	return token.Token{Type: token.ILLEGAL, Literal: string(ch), Row: l.row, Col: l.col}, false
 }
 
 func possibleMultiCharSymbols(ch byte) map[string]token.TokenType {
@@ -148,48 +160,48 @@ func possibleMultiCharSymbols(ch byte) map[string]token.TokenType {
 func trySingleCharSymbol(l *Lexer) (token.Token, bool) {
 	// Try to read a single-character symbol
 	if tok, ok := token.Symbols[string(l.ch)]; ok {
-		return token.Token{Type: tok, Literal: string(l.ch)}, true
+		return token.Token{Type: tok, Literal: string(l.ch), Row: l.row, Col: l.col}, true
 	}
-	return token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}, false
+	return token.Token{Type: token.ILLEGAL, Literal: string(l.ch), Row: l.row, Col: l.col}, false
 }
 
 func tryKeywordOrIdent(l *Lexer) (token.Token, bool) {
-    // Try to read a keyword or identifier
-    position := l.position
-    if !isIdentifierCharacter(l.ch) {
-        return token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}, false
-    }
+	// Try to read a keyword or identifier
+	position := l.position
+	if !isIdentifierCharacter(l.ch) {
+		return token.Token{Type: token.ILLEGAL, Literal: string(l.ch), Row: l.row, Col: l.col}, false
+	}
 
-    for isIdentifierCharacter(l.peekChar(1)) {
-        l.readChar()
-    }
-    ident := l.input[position:l.position + 1] 
-    if tok, ok := token.Keywords[ident]; ok {
-        return token.Token{Type: tok, Literal: ident}, true
-    }
-    return token.Token{Type: token.IDENT, Literal: ident}, true
+	for isIdentifierCharacter(l.peekChar(1)) {
+		l.readChar()
+	}
+	ident := l.input[position : l.position+1]
+	if tok, ok := token.Keywords[ident]; ok {
+		return token.Token{Type: tok, Literal: ident, Row: l.row, Col: l.col}, true
+	}
+    return token.Token{Type: token.IDENT, Literal: ident, Row: l.row, Col: l.col}, true
 }
 
 func tryNumber(l *Lexer) (token.Token, bool) {
-    // Try to read a number
-    position := l.position
-    if !isDigit(l.ch) {
-        return token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}, false
-    }
+	// Try to read a number
+	position := l.position
+	if !isDigit(l.ch) {
+        return token.Token{Type: token.ILLEGAL, Literal: string(l.ch), Row: l.row, Col: l.col}, false
+	}
 
-    // We peek to avoid reading the next character. When we do
-    // reach a non digit out pointer will be at the last digit
-    // Which matches the expected behavior
-    for isDigit(l.peekChar(1)) {
-        l.readChar()
-    }
-    return token.Token{Type: token.INT, Literal: l.input[position:l.position + 1]}, true
+	// We peek to avoid reading the next character. When we do
+	// reach a non digit out pointer will be at the last digit
+	// Which matches the expected behavior
+	for isDigit(l.peekChar(1)) {
+		l.readChar()
+	}
+    return token.Token{Type: token.INT, Literal: l.input[position : l.position+1], Row: l.row, Col: l.col}, true
 }
 
 func tryEOF(l *Lexer) (token.Token, bool) {
-    // Try to read EOF
-    if l.ch == 0 {
-        return token.Token{Type: token.EOF, Literal: ""}, true
-    }
-    return token.Token{Type: token.ILLEGAL, Literal: string(l.ch)}, false
+	// Try to read EOF
+	if l.ch == 0 {
+        return token.Token{Type: token.EOF, Literal: "", Row: l.row, Col: l.col}, true
+	}
+    return token.Token{Type: token.ILLEGAL, Literal: string(l.ch), Row: l.row, Col: l.col}, false
 }
