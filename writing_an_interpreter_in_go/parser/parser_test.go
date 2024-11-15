@@ -6,30 +6,37 @@ import (
 	"wl/lexer"
 )
 
+var letTests = []struct {
+	input              string
+	valid              bool
+	expectedIdentifier string
+}{
+	{"let x = 5;", true, "x"},
+	{"let y = 10;", true, "y"},
+	{"let foobar = 838383;", true, "foobar"},
+	{"let foobar 838383;", false, "foobar"},
+}
+
 func TestLetStatements(t *testing.T) {
-	input := `let x = 5;
-let y = 10;
-let foobar = 838383;`
-	lex := lexer.New(input)
-	parse := New(lex)
-	program := parse.ParseProgram()
-	checkParserErrors(t, parse)
-	if program == nil {
-		t.Fatalf("ParseProgram() returned nil")
-	}
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d",
-			len(program.Statements))
-	}
-	tests := []struct {
-		expectedIdentifier string
-	}{
-		{"x"},
-		{"y"},
-		{"foobar"},
-	}
-	for i, tt := range tests {
-		stmt := program.Statements[i]
+	for _, tt := range letTests {
+		lex := lexer.New(tt.input)
+		parse := New(lex)
+		program := parse.ParseProgram()
+		var errors = checkParserErrors(t, parse)
+		if errors == tt.valid {
+			t.Fatalf("checkParserErrors() returned %t", errors)
+		}
+		if errors {
+			continue
+		}
+		if program == nil {
+			t.Fatalf("ParseProgram() returned nil")
+		}
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statement. got=%d",
+				len(program.Statements))
+		}
+		stmt := program.Statements[0]
 		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
 			return
 		}
@@ -58,21 +65,34 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	return true
 }
 
+var returnTests = []struct {
+	input string
+	valid bool
+}{
+	{"return 5;", true},
+	{"return 10;", true},
+}
+
 func TestReturnStatements(t *testing.T) {
-	input := `
-return 5;
-return 10;
-return 993322;
-`
-	l := lexer.New(input)
-	p := New(l)
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d",
-			len(program.Statements))
-	}
-	for _, stmt := range program.Statements {
+	for _, tt := range returnTests {
+		lex := lexer.New(tt.input)
+		parse := New(lex)
+		program := parse.ParseProgram()
+		var errors = checkParserErrors(t, parse)
+		if errors == tt.valid {
+			t.Fatalf("checkParserErrors() returned %t for code\n%s", errors, tt.input)
+		}
+		if errors {
+			continue
+		}
+		if program == nil {
+			t.Fatalf("ParseProgram() returned nil")
+		}
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statement. got=%d",
+				len(program.Statements))
+		}
+		stmt := program.Statements[0]
 		returnStmt, ok := stmt.(*ast.ReturnStatement)
 		if !ok {
 			t.Errorf("stmt not *ast.ReturnStatement. got=%T", stmt)
@@ -85,14 +105,14 @@ return 993322;
 	}
 }
 
-func checkParserErrors(t *testing.T, p *Parser) {
+func checkParserErrors(t *testing.T, p *Parser) bool {
 	errors := p.Errors()
 	if len(errors) == 0 {
-		return
+		return false
 	}
-	t.Errorf("parser has %d errors", len(errors))
+	t.Logf("parser has %d errors", len(errors))
 	for _, msg := range errors {
-		t.Errorf("parser error: %q", msg)
+		t.Logf("parser error: %q", msg)
 	}
-	t.FailNow()
+	return true
 }

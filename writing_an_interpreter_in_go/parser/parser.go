@@ -54,13 +54,15 @@ func (p *Parser) ParseProgram() *ast.Program {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
+	// TODO - Make this a series of tryParseLet, tryParseReturn, etc.
+	// How to handle parser errors? We'd expect a bunch of errors, which we should only log if it fails.
 	switch p.curToken.Type {
-	case token.LET:
-		return p.parseLetStatement()
-	case token.RETURN:
-		return p.parseReturnStatement()
-	default:
-		return nil
+        case token.LET:
+            return p.parseLetStatement()
+        case token.RETURN:
+            return p.parseReturnStatement()
+        default:
+            return nil
 	}
 }
 
