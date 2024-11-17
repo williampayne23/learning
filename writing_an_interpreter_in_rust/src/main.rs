@@ -1,15 +1,12 @@
+use cli::cli::run;
+
+
 mod token;
 mod lexer;
-mod repl;
-
+mod ast;
+mod parser;
+mod cli;
 
 fn main() {
-    repl::repl();
-}
-
-mod test {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
+    run();
 }

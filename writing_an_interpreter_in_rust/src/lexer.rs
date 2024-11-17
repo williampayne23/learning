@@ -5,6 +5,8 @@ pub struct Lexer {
     input: String,
     position: usize,
     read_position: usize,
+    line: usize,
+    column: usize,
     ch: char,
 }
 
@@ -13,6 +15,8 @@ impl Lexer {
         let mut l = Lexer {
             input,
             position: 0,
+            line: 1,
+            column: 0,
             read_position: 0,
             ch: '\0',
         };
@@ -30,6 +34,11 @@ impl Lexer {
         }
         self.position = self.read_position;
         self.read_position += 1;
+        self.column += 1;
+        if self.ch == '\n' {
+            self.line += 1;
+            self.column = 0;
+        }
     }
 
     fn jump_ahead(&mut self, n: usize) {
@@ -59,24 +68,36 @@ impl Lexer {
 
     pub fn next_token(&mut self) -> token::Token {
         self.skip_whitespace();
+        let line = self.line;
+        let col = self.column;
 
-        if let Some(tok) = self.try_multi_char_token() {
+        if let Some(mut tok) = self.try_multi_char_token() {
+            tok.line = line;
+            tok.column = col;
             return tok;
         }
 
-        if let Some(tok) = self.try_single_char_token() {
+        if let Some(mut tok) = self.try_single_char_token() {
+            tok.line = line;
+            tok.column = col;
             return tok;
         }
 
-        if let Some(tok) = self.try_ident_or_keyword() {
+        if let Some(mut tok) = self.try_ident_or_keyword() {
+            tok.line = line;
+            tok.column = col;
             return tok;
         }
 
-        if let Some(tok) = self.try_number() {
+        if let Some(mut tok) = self.try_number() {
+            tok.line = line;
+            tok.column = col;
             return tok;
         }
 
-        if let Some(tok) = self.try_eof() {
+        if let Some(mut tok) = self.try_eof() {
+            tok.line = line;
+            tok.column = col;
             return tok;
         }
 

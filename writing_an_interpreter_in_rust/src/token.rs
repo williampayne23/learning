@@ -1,4 +1,6 @@
-#[derive(Debug, PartialEq, Clone)]
+use std::fmt::Debug;
+
+#[derive(PartialEq, Clone)]
 pub enum TokenType {
     ILLEGAL,
     EOF,
@@ -6,7 +8,7 @@ pub enum TokenType {
     // Identifiers + literals
     Ident(String),
     Int(i64),
-    
+
     // Operators
     Assign,
     Plus,
@@ -25,7 +27,7 @@ pub enum TokenType {
     EQ,
     STRONGEQ,
     NotEQ,
-     
+
     // Delimiters
     Comma,
     Semicolon,
@@ -45,15 +47,68 @@ pub enum TokenType {
     Return,
 }
 
+impl Debug for TokenType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{:?}", self.to_string()))
+    }
+}
+
+impl TokenType {
+    fn to_string(&self) -> String {
+        match self {
+            TokenType::ILLEGAL => "ILLEGAL".to_string(),
+            TokenType::EOF => "EOF".to_string(),
+            TokenType::Ident(_) => "Identifier".to_string(),
+            TokenType::Int(_) => "Integer".to_string(),
+            TokenType::Assign => "=".to_string(),
+            TokenType::Plus => "+".to_string(),
+            TokenType::Minus => "-".to_string(),
+            TokenType::Bang => "!".to_string(),
+            TokenType::Asterisk => "*".to_string(),
+            TokenType::Slash => "/".to_string(),
+            TokenType::PlusPlus => "++".to_string(),
+            TokenType::MinusMinus => "--".to_string(),
+            TokenType::LT => "<".to_string(),
+            TokenType::GT => ">".to_string(),
+            TokenType::LTE => "<=".to_string(),
+            TokenType::GTE => ">=".to_string(),
+            TokenType::EQ => "==".to_string(),
+            TokenType::STRONGEQ => "===".to_string(),
+            TokenType::NotEQ => "!=".to_string(),
+            TokenType::Comma => ",".to_string(),
+            TokenType::Semicolon => ";".to_string(),
+            TokenType::LParen => "(".to_string(),
+            TokenType::RParen => ")".to_string(),
+            TokenType::LBrace => "{".to_string(),
+            TokenType::RBrace => "}".to_string(),
+            TokenType::Function => "fn".to_string(),
+            TokenType::Let => "let".to_string(),
+            TokenType::True => "true".to_string(),
+            TokenType::False => "false".to_string(),
+            TokenType::If => "if".to_string(),
+            TokenType::Else => "else".to_string(),
+            TokenType::Return => "return".to_string(),
+        }
+    }
+
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,
+    pub line: usize,
+    pub column: usize,
 }
 
 impl Token {
     pub fn new(token_type: TokenType, literal: String) -> Token {
-        Token { token_type, literal }
+        Token {
+            token_type,
+            literal,
+            line: 0,
+            column: 0,
+        }
     }
     pub fn new_symbol(token_type: TokenType) -> Token {
         match token_type {
@@ -101,10 +156,12 @@ impl Token {
     }
 
     pub fn new_number(literal: &str) -> Token {
-        Token::new(TokenType::Int(literal.parse().unwrap()), literal.to_string())
+        Token::new(
+            TokenType::Int(literal.parse().unwrap()),
+            literal.to_string(),
+        )
     }
 }
-
 
 pub fn lookup_single_char_token(c: char) -> Option<TokenType> {
     match c {
@@ -122,7 +179,7 @@ pub fn lookup_single_char_token(c: char) -> Option<TokenType> {
         ')' => Some(TokenType::RParen),
         '{' => Some(TokenType::LBrace),
         '}' => Some(TokenType::RBrace),
-        
+
         _ => None,
     }
 }

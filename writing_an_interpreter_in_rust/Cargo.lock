@@ -266,6 +266,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "seahorse"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d25679a62f678e7485f21abdea76f91a15322a0fe51efea791fd9d124f1c473c"
+
+[[package]]
 name = "semver"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -328,4 +334,5 @@ name = "writing_an_interpreter_in_rust"
 version = "0.1.0"
 dependencies = [
  "rstest",
+ "seahorse",
 ]
