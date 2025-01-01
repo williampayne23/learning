@@ -1,0 +1,5 @@
+version = "0.1"
+
+[instruction_sets]
+x86 = false
+x86_64 = true
