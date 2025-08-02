@@ -1,4 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_butler::*;
 
 pub struct WorldToScreenPLugin {
     pub width: f32,
@@ -34,8 +35,15 @@ impl Plugin for WorldToScreenPLugin {
             width: self.width,
             height: self.height,
         })
-        .add_systems(PostUpdate, world_to_screen);
+        .add_systems(PostUpdate, world_to_screen)
+        .add_observer(ensure_transform_with_worldpos);
     }
+}
+
+fn ensure_transform_with_worldpos(trigger: Trigger<OnAdd, WorldPos>, mut commands: Commands) {
+    commands
+        .entity(trigger.target())
+        .insert(Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)));
 }
 
 fn world_to_screen(
