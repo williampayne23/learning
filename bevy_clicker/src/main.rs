@@ -1,7 +1,9 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 
 mod balls;
 mod player;
+mod score;
+mod shop;
 mod world_to_screen;
 
 fn main() {
@@ -15,6 +17,8 @@ fn main() {
         }))
         .add_plugins(balls::BallsPlugin)
         .add_plugins(player::PlayerPlugin)
+        .add_plugins(score::ScorePlugin)
+        .add_plugins(shop::ShopPlugin)
         .add_plugins(world_to_screen::WorldToScreenPLugin {
             width: 100.,
             height: 100.,
