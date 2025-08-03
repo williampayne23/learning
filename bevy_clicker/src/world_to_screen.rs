@@ -20,6 +20,15 @@ impl WorldPos {
             scale: Vec2::new(1.0, 1.0),
         }
     }
+
+    pub fn from_screen_pos(screen_pos: &Vec2, world_size: &Vec2, screen_size: &Vec2) -> Self {
+        let translation = convert_screen_to_world_pos(screen_pos, world_size, screen_size);
+        Self {
+            translation,
+            rotation: Quat::IDENTITY,
+            scale: Vec2::new(1.0, 1.0),
+        }
+    }
 }
 
 #[derive(Resource)]
@@ -62,12 +71,13 @@ fn world_to_screen(
     let proportional_screen_size = get_proportional_size(&world_size, &logical_size);
 
     for (mut transform, world_pos) in query.iter_mut() {
-        let screen_x = (world_pos.translation.x - world_size.x / 2.) * proportional_screen_size.x
-            / world_size.x;
-        let screen_y = (world_pos.translation.y - world_size.y / 2.) * proportional_screen_size.y
-            / world_size.y;
+        let new_pos = convert_world_to_screen_pos(
+            &world_pos.translation,
+            &world_size,
+            &proportional_screen_size,
+        );
         // Update the transform with the new screen position
-        transform.translation = Vec3::new(screen_x, screen_y, transform.translation.z);
+        transform.translation = Vec3::new(new_pos.x, new_pos.y, transform.translation.z);
 
         // Apply rotation and scale
         transform.rotation = world_pos.rotation;
@@ -83,11 +93,33 @@ fn world_to_screen(
     }
 }
 
-fn get_proportional_size(world_size: &Vec2, logical_size: &Vec2) -> Vec2 {
+pub fn get_proportional_size(world_size: &Vec2, logical_size: &Vec2) -> Vec2 {
     // Larges possible size that fits in the logical size
     // But is the same aspect ratio as the world size
     let scale_x = logical_size.x / world_size.x;
     let scale_y = logical_size.y / world_size.y;
     let scale = scale_x.min(scale_y);
     Vec2::new(world_size.x * scale, world_size.y * scale)
+}
+
+pub fn convert_world_to_screen_pos(
+    world_pos: &Vec2,
+    world_size: &Vec2,
+    screen_size: &Vec2,
+) -> Vec2 {
+    let proportional_screen_size = get_proportional_size(world_size, screen_size);
+    let screen_x = (world_pos.x - world_size.x / 2.) * proportional_screen_size.x / world_size.x;
+    let screen_y = (world_pos.y - world_size.y / 2.) * proportional_screen_size.y / world_size.y;
+    Vec2::new(screen_x, screen_y)
+}
+
+pub fn convert_screen_to_world_pos(
+    screen_pos: &Vec2,
+    world_size: &Vec2,
+    screen_size: &Vec2,
+) -> Vec2 {
+    let proportional_screen_size = get_proportional_size(world_size, screen_size);
+    let world_x = screen_pos.x * world_size.x / proportional_screen_size.x + world_size.x / 2.;
+    let world_y = screen_pos.y * world_size.y / proportional_screen_size.y + world_size.y / 2.;
+    Vec2::new(world_x, world_y)
 }

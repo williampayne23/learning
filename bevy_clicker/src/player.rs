@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_butler::*;
 
-use crate::{GameStartEvent, score::IncreaseScoreEvent, world_to_screen::WorldPos};
+use crate::{GameStartEvent, balls::score::CommitScoreEvent, world_to_screen::WorldPos};
 
 #[butler_plugin]
 pub struct PlayerPlugin;
@@ -59,10 +59,7 @@ fn spawn_score(
 }
 
 #[add_observer(plugin = PlayerPlugin)]
-fn update_score(
-    trigger: Trigger<IncreaseScoreEvent>,
-    mut query: Query<(&mut Text2d, &mut Player)>,
-) {
+fn update_score(trigger: Trigger<CommitScoreEvent>, mut query: Query<(&mut Text2d, &mut Player)>) {
     let (mut text, mut player) = query.single_mut().unwrap();
     player.all_time_score += trigger.amount;
     player.points += trigger.amount;

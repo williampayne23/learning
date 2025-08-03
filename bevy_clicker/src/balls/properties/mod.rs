@@ -1,3 +1,4 @@
-mod decaying;
-// mod base_score
-// mod preferred_wall;
+pub mod bounce_decaying;
+pub mod bounce_multiply;
+pub mod bounce_score;
+pub mod preferred_wall;
