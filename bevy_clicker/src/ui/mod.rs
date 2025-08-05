@@ -5,10 +5,14 @@ use haalka::prelude::*;
 
 pub mod components;
 
-#[butler_plugin]
 pub struct UIPlugin;
 
-#[add_system(plugin = UIPlugin, schedule = Startup)]
+impl Plugin for UIPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(HaalkaPlugin).add_systems(Startup, setup_ui);
+    }
+}
+
 fn setup_ui(world: &mut World) {
     button::ui_root().spawn(world);
 }

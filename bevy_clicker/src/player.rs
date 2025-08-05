@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_butler::*;
 
-use crate::{GameStartEvent, balls::score::CommitScoreEvent, world_to_screen::WorldPos};
+use crate::{balls::score::CommitScoreEvent, setup::GameStartEvent, world_to_screen::WorldPos};
 
 #[butler_plugin]
 pub struct PlayerPlugin;

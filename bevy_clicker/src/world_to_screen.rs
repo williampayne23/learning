@@ -1,5 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
+/// Maps a world position to a scaled screen position
 pub struct WorldToScreenPLugin {
     pub width: f32,
     pub height: f32,

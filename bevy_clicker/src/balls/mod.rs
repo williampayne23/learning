@@ -6,8 +6,8 @@ use properties::bounce_decaying::LinearBounceDecay;
 use properties::bounce_score::ScoreOnWallBounce;
 use properties::preferred_wall::PreferredWall;
 
-use crate::GameStartEvent;
 use crate::input::mouse::MouseClickEvent;
+use crate::setup::GameStartEvent;
 use crate::world_to_screen::{WorldPos, WorldToScreenConfig, get_proportional_size};
 
 mod movement;
