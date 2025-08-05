@@ -1,4 +1,7 @@
-use crate::balls::{Ball, BallHitWallEvent, BallsPlugin};
+use crate::{
+    balls::{Ball, BallHitWallEvent, BallsPlugin},
+    utilities::destroy::DelayedDespawnEvent,
+};
 use bevy::prelude::*;
 use bevy_butler::*;
 
@@ -28,7 +31,9 @@ fn exp_shrink_on_bounce(
         // Shrink the ball by rate on each bounce
         if ball.diameter < 1.0 {
             // If the ball is too small, remove it
-            commands.entity(trigger.target()).despawn();
+            commands
+                .entity(trigger.target())
+                .trigger(DelayedDespawnEvent);
         }
     }
 }
@@ -59,7 +64,9 @@ fn linear_shrink_on_bounce(
         // Shrink the ball by rate on each bounce
         if ball.diameter < 1.0 {
             // If the ball is too small, remove it
-            commands.entity(trigger.target()).despawn();
+            commands
+                .entity(trigger.target())
+                .trigger(DelayedDespawnEvent);
         }
     }
 }

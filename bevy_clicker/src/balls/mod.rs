@@ -80,7 +80,7 @@ pub fn spawn_first_ball(_trigger: Trigger<GameStartEvent>, mut commands: Command
     ));
 }
 
-#[add_observer(plugin = BallsPlugin)]
+// #[add_observer(plugin = BallsPlugin)]
 pub fn spawn_on_mouse_click(
     trigger: Trigger<MouseClickEvent>,
     mut commands: Commands,
