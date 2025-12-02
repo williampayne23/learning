@@ -1,4 +1,5 @@
 import sys
+from time import time
 from pydantic import BaseModel
 
 EXAMPLE_PUZZLE_INPUT = """11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124"""
@@ -90,8 +91,12 @@ def main():
         _run_tests()
         return
 
+    start_time = time()
     print("Part 1:", solution_part_1(puzzle_input))
+    print(f"took {time() - start_time:.4f}s")
+    start_time = time()
     print("Part 2:", solution_part_2(puzzle_input))
+    print(f"took {time() - start_time:.4f}s")
 
 
 def _run_tests():

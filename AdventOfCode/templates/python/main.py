@@ -1,4 +1,5 @@
 import sys
+from time import time
 
 EXAMPLE_PUZZLE_INPUT = """\
 """
@@ -27,8 +28,12 @@ def main():
         _run_tests()
         return
 
+    start_time = time()
     print("Part 1:", solution_part_1(puzzle_input))
+    print(f"took {time() - start_time:.4f}s")
+    start_time = time()
     print("Part 2:", solution_part_2(puzzle_input))
+    print(f"took {time() - start_time:.4f}s")
 
 
 def _run_tests():
