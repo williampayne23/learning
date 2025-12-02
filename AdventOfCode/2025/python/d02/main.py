@@ -25,6 +25,24 @@ class IDRange(BaseModel):
     def invalid_ids(self):
         return [i for i in range(self.start, self.end + 1) if is_invalid_id(i)]
 
+    def fast_invalid_ids(self):
+        # Need to loop through ids, skip immedietly to ids which could be invalid
+        # E.g if range is from 123100 to 123300 we know that only 123123 is invalid
+        # In general for ABC??? the next valid number is either ABCABC or ABDABD.
+        invalid_ids = []
+        length = len(str(self.start))
+        if length % 2 != 0:
+            prefix = round(10 ** (length // 2))
+        else:
+            prefix = round(self.start // (10 ** (length / 2)))
+        current = prefix * (10 ** len(str(prefix))) + prefix
+        while current >= self.start and current <= self.end:
+            invalid_ids.append(current)
+            prefix += 1
+            current = prefix * (10 ** len(str(prefix))) + prefix
+
+        return invalid_ids
+
     def invalid_ids_2(self):
         return [i for i in range(self.start, self.end + 1) if is_invalid_id_2(i)]
 
@@ -52,7 +70,6 @@ def is_invalid_id_2(id: int) -> bool:
     # Brute force try increasingly large substrings once you get to the half length of the number give up.
     str_id = str(id)
     length = len(str_id)
-    "abcdabcdabcd"
     for len_check in range(1, length // 2 + 1):
         if length % len_check != 0:
             continue
@@ -69,7 +86,7 @@ def parse_ip_ranges(input: str):
 
 def solution_part_1(input: str):
     ranges = parse_ip_ranges(input)
-    invalid_ids = [invalid_id for r in ranges for invalid_id in r.invalid_ids()]
+    invalid_ids = [invalid_id for r in ranges for invalid_id in r.fast_invalid_ids()]
     return sum(invalid_ids)
 
 
