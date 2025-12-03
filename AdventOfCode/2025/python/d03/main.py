@@ -14,7 +14,7 @@ def process_line(line: str, length: int):
     digits = [int(c) for c in line]
     if len(digits) == 0:
         return 0
-    return recursive_make_joltage(digits, length)
+    return dynamic_programming_make_joltage(digits, length)
 
 
 def recursive_make_joltage(digits, length) -> int:
@@ -36,6 +36,30 @@ def recursive_make_joltage(digits, length) -> int:
             )
             max_dig = digit
     return max_joltage
+
+
+def dynamic_programming_make_joltage(digits: list[int], length: int):
+    grid = [[0 for i in range(len(digits))] for j in range(length + 1)]
+
+    def substring(sublen: int, start_index: int) -> int:
+        if sublen > (len(digits) - start_index) or sublen <= 0:
+            return 0
+        if start_index >= len(digits):
+            return 0
+
+        value = grid[sublen][start_index]
+        if value != 0:
+            return value
+
+        right_arm = substring(sublen, start_index + 1)
+        digit_at_start = digits[start_index]
+        sub_problem = substring(sublen - 1, start_index + 1)
+        left_arm = digit_at_start * (10 ** (sublen - 1)) + sub_problem
+        grid[sublen][start_index] = max(left_arm, right_arm)
+        return grid[sublen][start_index]
+
+    val = substring(length, 0)
+    return val
 
 
 def solution_part_1(input):
