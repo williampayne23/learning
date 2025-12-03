@@ -29,22 +29,60 @@ class IDRange(BaseModel):
         # Need to loop through ids, skip immedietly to ids which could be invalid
         # E.g if range is from 123100 to 123300 we know that only 123123 is invalid
         # In general for ABC??? the next valid number is either ABCABC or ABDABD.
-        invalid_ids = []
+
+        # Get prefix (the first half of the number as a number)
         length = len(str(self.start))
         if length % 2 != 0:
             prefix = round(10 ** (length // 2))
         else:
             prefix = round(self.start // (10 ** (length / 2)))
+        # Current number is prefix concatenated with prefix
         current = prefix * (10 ** len(str(prefix))) + prefix
         while current >= self.start and current <= self.end:
-            invalid_ids.append(current)
+            # yield current whilst iterating the prefix provided we stay
+            # within range
+            yield current
             prefix += 1
             current = prefix * (10 ** len(str(prefix))) + prefix
 
-        return invalid_ids
-
     def invalid_ids_2(self):
         return [i for i in range(self.start, self.end + 1) if is_invalid_id_2(i)]
+
+    def fast_invalid_ids_2(self):
+        # basically do what was done in fast ids 1 but for different prefix lengths
+        # Except that doesn't work because we don't know how many times to repeat the prefix?
+        # I guess just repeat enough times to be > self.start then do passes for more repeats if needed?
+        half_len = len(str(self.end)) // 2
+        vals = set()
+        for i in range(1, half_len + 1):
+            added = list(self.fast_invalid_ids_fixed_prefix(i))
+            vals = vals.union(added)
+        return list(vals)
+
+    def fast_invalid_ids_fixed_prefix(self, prefix_len: int):
+        # for number abcdef____
+        start_len = len(str(self.start))
+        end_len = len(str(self.end))
+        # get number prefix
+        start_prefix = 10 ** (prefix_len - 1)
+        end_prefix = 10 ** (prefix_len)
+        repeats_to_try = {start_len // prefix_len, end_len // prefix_len}
+
+        for repeats in repeats_to_try:
+            if repeats <= 1:
+                continue
+            for prefix in range(start_prefix, end_prefix):
+                current = repeat_prefix(prefix, repeats)
+                if current > self.start and current < self.end:
+                    yield current
+
+
+def repeat_prefix(prefix: int, repeats: int):
+    val: int = 0
+    prefix_len = len(str(prefix))
+    for i in range(repeats):
+        val += prefix * 10 ** (prefix_len * i)
+    return val
 
 
 def is_invalid_id(id: int) -> bool:
@@ -92,7 +130,8 @@ def solution_part_1(input: str):
 
 def solution_part_2(input):
     ranges = parse_ip_ranges(input)
-    invalid_ids = [invalid_id for r in ranges for invalid_id in r.invalid_ids_2()]
+    invalid_ids = [invalid_id for r in ranges for invalid_id in r.fast_invalid_ids_2()]
+    assert sum(invalid_ids) == 48631958998
     return sum(invalid_ids)
 
 
